@@ -1,47 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Annick &amp; Damien's Wedding</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f8f6f2;
-    margin: 0;
-    padding: 30px;
-    color: #333;
+body{
+    font-family:Arial,sans-serif;
+    background:#f8f6f2;
+    padding:30px;
+    margin:0;
 }
 
-.container {
-    max-width: 800px;
-    margin: auto;
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    text-align: center;
+.container{
+    max-width:800px;
+    margin:auto;
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.1);
+    text-align:center;
 }
 
-h1 {
-    color: #9b6433;
+h1{
+    color:#9b6433;
 }
 
-button {
-    background-color: #9b6433;
-    color: white;
-    border: none;
-    padding: 14px 30px;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
+button{
+    background:#9b6433;
+    color:white;
+    border:none;
+    padding:14px 30px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
 }
 
-#status {
-    margin-top: 20px;
-    white-space: pre-wrap;
-    font-weight: bold;
+#status{
+    margin-top:20px;
+    text-align:left;
+    white-space:pre-wrap;
+    font-family:monospace;
 }
 </style>
 </head>
@@ -50,22 +51,22 @@ button {
 
 <div class="container">
 
-    <h1>Annick &amp; Damien's Wedding</h1>
+<h1>Annick &amp; Damien's Wedding</h1>
 
-    <p>
-        Thank you for celebrating with us.<br>
-        Please upload any photos or videos from our special day.
-    </p>
+<p>
+Thank you for celebrating with us.<br>
+Please upload any photos or videos from our special day.
+</p>
 
-    <input id="photos" type="file" multiple accept="image/*,video/*">
+<input id="photos" type="file" multiple accept="image/*,video/*">
 
-    <br><br>
+<br><br>
 
-    <button onclick="uploadPhotos()">
-        Upload Photos
-    </button>
+<button onclick="uploadPhotos()">
+Upload Photos
+</button>
 
-    <div id="status"></div>
+<div id="status"></div>
 
 </div>
 
@@ -76,13 +77,13 @@ async function uploadPhotos() {
     const files = document.getElementById("photos").files;
 
     if(files.length === 0){
-        alert("Please select a file");
+        alert("Please choose a file.");
         return;
     }
 
     let output = "";
 
-    for(const file of files){
+    for (const file of files) {
 
         const formData = new FormData();
         formData.append("file", file);
@@ -97,20 +98,15 @@ async function uploadPhotos() {
             const text = await response.text();
 
             output +=
-                file.name +
-                "\nHTTP Status: " +
-                response.status +
-                "\nResponse: " +
-                text +
-                "\n\n";
+                "FILE: " + file.name + "\n" +
+                "STATUS: " + response.status + "\n" +
+                "RESPONSE: " + text + "\n\n";
 
-        } catch(err){
+        } catch(err) {
 
             output +=
-                file.name +
-                "\nError: " +
-                err.message +
-                "\n\n";
+                "FILE: " + file.name + "\n" +
+                "ERROR: " + err.message + "\n\n";
         }
     }
 
