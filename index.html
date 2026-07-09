@@ -92,59 +92,7 @@
 
 </div>
 
-<script>
-document.getElementById("photos").addEventListener("change", () => {
-    const files = document.getElementById("photos").files;
-
-    document.getElementById("count").innerText =
-        files.length + " file(s) selected";
-});
-
-async function uploadPhotos() {
-
-    const files =
-        document.getElementById("photos").files;
-
-    if (files.length === 0) {
-        alert("Please select photos or videos.");
-        return;
-    }
-
-    const status =
-        document.getElementById("status");
-
-    status.innerText = "Uploading...";
-
-    let uploaded = 0;
-
-    for (const file of files) {
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            const response = await fetch("/upload", {
-                method: "POST",
-                body: formData
-            });
-
-            if (response.ok) {
-                uploaded++;
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    status.innerText =
-        "Thank you! " +
-        uploaded +
-        " file(s) uploaded successfully.";
-
-    document.getElementById("photos").value = "";
-    document.getElementById("count").innerText = "";
-}
-</script>
+<script>2document.getElementById("photos").addEventListener("change", () => {3    const files = document.getElementById("photos").files;4    document.getElementById("count").innerText =5        files.length + " file(s) selected";6});7 8async function uploadPhotos() {9 10    const files = document.getElementById("photos").files;11 12    if (files.length === 0) {13        alert("Please select photos or videos.");14        return;15    }16 17    const status = document.getElementById("status");18 19    let uploaded = 0;20    let failed = 0;21 22    for (const file of files) {23 24        const formData = new FormData();25        formData.append("file", file);26 27        try {28 29            const response = await fetch("/upload", {30                method: "POST",31                body: formData32            });33 34            const text = await response.text();35 36            console.log("Status:", response.status);37            console.log("Response:", text);38 39            if (response.ok) {40                uploaded++;41            } else {42                failed++;43            }44 45        } catch (error) {46 47            console.error(error);48            failed++;49        }50    }51 52    status.innerHTML =53        "Uploaded: " + uploaded +54        "<br>Failed: " + failed;55}56</script>
 
 </body>
 </html>
