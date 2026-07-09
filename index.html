@@ -3,65 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kevin &amp; Damien's Wedding</title>
+<title>Annick &amp; Damien's Wedding</title>
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f8f6f2;
-        text-align: center;
-        margin: 0;
-        padding: 20px;
-        color: #333;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f6f2;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
 
-    .container {
-        max-width: 600px;
-        margin: 40px auto;
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+.container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
 
-    h1 {
-        color: #8b5e3c;
-        margin-bottom: 10px;
-    }
+h1 {
+    color: #8b5e3c;
+}
 
-    p {
-        line-height: 1.5;
-    }
+p {
+    line-height: 1.5;
+}
 
-    input[type=file] {
-        width: 100%;
-        margin: 20px 0;
-    }
+input[type=file] {
+    display: block;
+    width: 100%;
+    margin: 20px 0;
+}
 
-    button {
-        background: #8b5e3c;
-        color: white;
-        border: none;
-        padding: 14px 24px;
-        font-size: 16px;
-        border-radius: 8px;
-        cursor: pointer;
-    }
+button {
+    background: #8b5e3c;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
 
-    button:hover {
-        background: #6e492e;
-    }
+button:hover {
+    background: #6e492e;
+}
 
-    #count {
-        margin-top: 10px;
-        color: #666;
-    }
+#count {
+    margin-top: 10px;
+    color: #666;
+}
 
-    #status {
-        margin-top: 20px;
-        font-weight: bold;
-        white-space: pre-line;
-    }
+#status {
+    margin-top: 20px;
+    font-weight: bold;
+    white-space: pre-line;
+}
 </style>
 </head>
 
@@ -76,4 +76,75 @@
         Please upload any photos or videos from our special day.
     </p>
 
-   
+    <input
+        id="photos"
+        type="file"
+        multiple
+        accept="image/*,video/*"
+    >
+
+    <div id="count"></div>
+
+    <button onclick="uploadPhotos()">Upload Photos</button>
+
+    <div id="status"></div>
+
+</div>
+
+<script>
+
+document.getElementById("photos").addEventListener("change", function() {
+    const files = document.getElementById("photos").files;
+    document.getElementById("count").innerText =
+        files.length + " file(s) selected";
+});
+
+async function uploadPhotos() {
+
+    const files = document.getElementById("photos").files;
+
+    if (files.length === 0) {
+        alert("Please select at least one photo or video.");
+        return;
+    }
+
+    const status = document.getElementById("status");
+
+    status.innerText = "Uploading...";
+
+    let uploaded = 0;
+    let failed = 0;
+
+    for (const file of files) {
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+
+            const response = await fetch("/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            if (response.ok) {
+                uploaded++;
+            } else {
+                failed++;
+            }
+
+        } catch (error) {
+            failed++;
+        }
+    }
+
+    status.innerText =
+        "Uploaded: " + uploaded +
+        "\nFailed: " + failed;
+
+}
+
+</script>
+
+</body>
+</html>
