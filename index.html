@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Annick &amp; Damien's Wedding</title>
 
 <style>
@@ -27,20 +26,6 @@ body {
 
 h1 {
     color: #9b6433;
-    font-size: 3rem;
-    margin-bottom: 20px;
-}
-
-p {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    margin-bottom: 30px;
-}
-
-input[type="file"] {
-    display: block;
-    margin: 20px auto;
-    font-size: 16px;
 }
 
 button {
@@ -53,19 +38,10 @@ button {
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #7d5028;
-}
-
-#count {
-    margin-top: 10px;
-    color: #666;
-}
-
 #status {
     margin-top: 20px;
+    white-space: pre-wrap;
     font-weight: bold;
-    white-space: pre-line;
 }
 </style>
 </head>
@@ -81,14 +57,9 @@ button:hover {
         Please upload any photos or videos from our special day.
     </p>
 
-    <input
-        id="photos"
-        type="file"
-        multiple
-        accept="image/*,video/*"
-    >
+    <input id="photos" type="file" multiple accept="image/*,video/*">
 
-    <div id="count"></div>
+    <br><br>
 
     <button onclick="uploadPhotos()">
         Upload Photos
@@ -100,17 +71,53 @@ button:hover {
 
 <script>
 
-document.getElementById("photos").addEventListener("change", function() {
-
-    const files = document.getElementById("photos").files;
-
-    document.getElementById("count").innerText =
-        files.length + " file(s) selected";
-});
-
 async function uploadPhotos() {
 
     const files = document.getElementById("photos").files;
 
-    if (files.length === 0) {
-        alert("Please
+    if(files.length === 0){
+        alert("Please select a file");
+        return;
+    }
+
+    let output = "";
+
+    for(const file of files){
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+
+            const response = await fetch("/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            const text = await response.text();
+
+            output +=
+                file.name +
+                "\nHTTP Status: " +
+                response.status +
+                "\nResponse: " +
+                text +
+                "\n\n";
+
+        } catch(err){
+
+            output +=
+                file.name +
+                "\nError: " +
+                err.message +
+                "\n\n";
+        }
+    }
+
+    document.getElementById("status").innerText = output;
+}
+
+</script>
+
+</body>
+</html>
