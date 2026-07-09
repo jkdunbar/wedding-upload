@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wedding Photos</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    text-align:center;
+    padding:40px;
+}
+
+input, button{
+    font-size:18px;
+    margin:10px;
+}
+
+button{
+    background:#0066cc;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>📸 Share Your Wedding Photos</h1>
+
+<p>Please upload your photos from today.</p>
+
+<input id="photos" type="file" multiple accept="image/*">
+
+<br>
+
+<button onclick="uploadPhotos()">Upload Photos</button>
+
+<p id="status"></p>
+
+<script>
+
+async function uploadPhotos() {
+
+    const files =
+        document.getElementById("photos").files;
+
+    if(files.length === 0){
+        alert("Please select photos");
+        return;
+    }
+
+    document.getElementById("status").innerText =
+        "Uploading...";
+
+    for(const file of files){
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        await fetch("/upload", {
+            method: "POST",
+            body: formData
+        });
+    }
+
+    document.getElementById("status").innerText =
+        "✅ Thank you for sharing!";
+}
+
+</script>
+
+</body>
+</html>
