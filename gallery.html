@@ -31,33 +31,35 @@ h1{
     gap: 15px;
 }
 
-.gallery img{
+.gallery img,
+.gallery video{
     width: 100%;
     height: 250px;
     object-fit: cover;
     border-radius: 10px;
     cursor: pointer;
     box-shadow: 0 2px 10px rgba(0,0,0,.15);
-    transition: transform .2s;
-}
-
-.gallery img:hover{
-    transform: scale(1.03);
 }
 
 .viewer{
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.9);
+    background: rgba(0,0,0,.95);
     justify-content: center;
     align-items: center;
     z-index: 999;
 }
 
-.viewer img{
+.viewer-content{
     max-width: 95%;
     max-height: 95%;
+}
+
+.viewer-content img,
+.viewer-content video{
+    max-width: 100%;
+    max-height: 90vh;
 }
 
 .close{
@@ -84,7 +86,7 @@ h1{
     <h1>Galerie du mariage d'Annick et Damien</h1>
 
     <div id="loading" class="loading">
-        Chargement des photos...
+        Chargement des souvenirs...
     </div>
 
     <div class="gallery" id="gallery"></div>
@@ -97,11 +99,22 @@ h1{
         &times;
     </span>
 
-    <img id="viewerImage">
+    <div class="viewer-content" id="viewerContent"></div>
 
 </div>
 
 <script>
+
+function isVideo(filename) {
+
+    const lower = filename.toLowerCase();
+
+    return lower.endsWith(".mp4") ||
+           lower.endsWith(".mov") ||
+           lower.endsWith(".webm") ||
+           lower.endsWith(".m4v") ||
+           lower.endsWith(".avi");
+}
 
 async function loadGallery() {
 
@@ -111,7 +124,7 @@ async function loadGallery() {
             "https://ancient-dew-e0ea.jkdunbar.workers.dev/photos"
         );
 
-        const photos = await response.json();
+        const items = await response.json();
 
         const gallery =
             document.getElementById("gallery");
@@ -120,57 +133,30 @@ async function loadGallery() {
             "loading"
         ).style.display = "none";
 
-        photos.reverse();
+        items.reverse();
 
-        for (const photo of photos) {
+        for (const item of items) {
 
-            const img =
-                document.createElement("img");
+            let element;
 
-            img.src = photo.url;
-            img.loading = "lazy";
+            if (isVideo(item.name)) {
 
-            img.onclick = () => {
+                element =
+                    document.createElement("video");
 
-                document.getElementById(
-                    "viewerImage"
-                ).src = photo.url;
+                element.src = item.url;
+                element.muted = true;
+                element.preload = "metadata";
 
-                document.getElementById(
-                    "viewer"
-                ).style.display = "flex";
-            };
+            } else {
 
-            gallery.appendChild(img);
-        }
+                element =
+                    document.createElement("img");
 
-    } catch (err) {
+                element.src = item.url;
+                element.loading = "lazy";
+            }
 
-        document.getElementById(
-            "loading"
-        ).innerText =
-            "Impossible de charger la galerie.";
-    }
-}
+            element.onclick = () => {
 
-function closeViewer() {
-
-    document.getElementById(
-        "viewer"
-    ).style.display = "none";
-}
-
-document.getElementById("viewer")
-    .addEventListener("click", function(e){
-
-    if(e.target.id === "viewer"){
-        closeViewer();
-    }
-});
-
-loadGallery();
-
-</script>
-
-</body>
-</html>
+       
