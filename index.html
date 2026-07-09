@@ -3,53 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Annick &amp; Damien's Wedding</title>
 
 <style>
 body {
     font-family: Arial, sans-serif;
     background: #f8f6f2;
-    color: #333;
     margin: 0;
-    padding: 20px;
-    text-align: center;
+    padding: 30px;
+    color: #333;
 }
 
 .container {
-    max-width: 600px;
-    margin: 40px auto;
+    max-width: 800px;
+    margin: auto;
     background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    text-align: center;
 }
 
 h1 {
-    color: #8b5e3c;
+    color: #9b6433;
+    font-size: 3rem;
+    margin-bottom: 20px;
 }
 
 p {
-    line-height: 1.5;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
 }
 
-input[type=file] {
+input[type="file"] {
     display: block;
-    width: 100%;
-    margin: 20px 0;
+    margin: 20px auto;
+    font-size: 16px;
 }
 
 button {
-    background: #8b5e3c;
+    background-color: #9b6433;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 14px 30px;
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
 }
 
 button:hover {
-    background: #6e492e;
+    background-color: #7d5028;
 }
 
 #count {
@@ -85,7 +90,9 @@ button:hover {
 
     <div id="count"></div>
 
-    <button onclick="uploadPhotos()">Upload Photos</button>
+    <button onclick="uploadPhotos()">
+        Upload Photos
+    </button>
 
     <div id="status"></div>
 
@@ -94,7 +101,9 @@ button:hover {
 <script>
 
 document.getElementById("photos").addEventListener("change", function() {
+
     const files = document.getElementById("photos").files;
+
     document.getElementById("count").innerText =
         files.length + " file(s) selected";
 });
@@ -104,47 +113,4 @@ async function uploadPhotos() {
     const files = document.getElementById("photos").files;
 
     if (files.length === 0) {
-        alert("Please select at least one photo or video.");
-        return;
-    }
-
-    const status = document.getElementById("status");
-
-    status.innerText = "Uploading...";
-
-    let uploaded = 0;
-    let failed = 0;
-
-    for (const file of files) {
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-
-            const response = await fetch("/upload", {
-                method: "POST",
-                body: formData
-            });
-
-            if (response.ok) {
-                uploaded++;
-            } else {
-                failed++;
-            }
-
-        } catch (error) {
-            failed++;
-        }
-    }
-
-    status.innerText =
-        "Uploaded: " + uploaded +
-        "\nFailed: " + failed;
-
-}
-
-</script>
-
-</body>
-</html>
+        alert("Please
