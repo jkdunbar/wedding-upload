@@ -181,3 +181,121 @@ h1 {
 @media (max-width: 600px) {
     body { padding: 20px 10px; }
     .container { padding: 30px 20px; }
+    h1 { font-size: 1.8rem; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="gallery-header">
+        <h1>Galerie du mariage d'Annick &amp; Damien</h1>
+        <a href="https://wedding-upload.jkdunbar.workers.dev/" class="btn-secondary">
+            Ajouter des photos
+        </a>
+    </div>
+
+    <div id="loading" class="loading">
+        Chargement des précieux souvenirs...
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+
+    <div class="footer">
+        Merci de partager ces merveilleux souvenirs avec nous ❤️
+    </div>
+
+</div>
+
+<div class="viewer" id="viewer">
+    <span class="close" onclick="closeViewer()">×</span>
+    <div class="viewer-content" id="viewerContent"></div>
+</div>
+
+<script>
+function isVideo(filename){
+    const name = filename.toLowerCase();
+    return (
+        name.endsWith(".mp4") ||
+        name.endsWith(".mov") ||
+        name.endsWith(".webm") ||
+        name.endsWith(".m4v") ||
+        name.endsWith(".avi")
+    );
+}
+
+async function loadGallery(){
+    const loading = document.getElementById("loading");
+
+    try {
+        const response = await fetch(
+            "https://ancient-dew-e0ea.jkdunbar.workers.dev/photos"
+        );
+
+        const items = await response.json();
+        loading.style.display = "none";
+
+        const gallery = document.getElementById("gallery");
+        items.reverse();
+
+        for (const item of items) {
+            let element;
+
+            const thumbSrc = item.thumbnailUrl ? item.thumbnailUrl : item.url;
+
+            if (isVideo(item.name)) {
+                element = document.createElement("video");
+                element.src = thumbSrc;
+                element.muted = true;
+                element.preload = "metadata";
+            } else {
+                element = document.createElement("img");
+                element.src = thumbSrc;
+                element.loading = "lazy";
+            }
+
+            element.onclick = () => {
+                const viewerContent = document.getElementById("viewerContent");
+                viewerContent.innerHTML = "";
+
+                if (isVideo(item.name)) {
+                    const video = document.createElement("video");
+                    video.src = item.url;
+                    video.controls = true;
+                    video.autoplay = true;
+                    viewerContent.appendChild(video);
+                } else {
+                    const img = document.createElement("img");
+                    img.src = item.url;
+                    viewerContent.appendChild(img);
+                }
+
+                document.getElementById("viewer").style.display = "flex";
+            };
+
+            gallery.appendChild(element);
+        }
+
+    } catch (err) {
+        loading.innerText = "Impossible de charger la galerie.";
+    }
+}
+
+function closeViewer(){
+    document.getElementById("viewer").style.display = "none";
+    document.getElementById("viewerContent").innerHTML = "";
+}
+
+document.getElementById("viewer").addEventListener("click", function(e){
+    if (e.target.id === "viewer") {
+        closeViewer();
+    }
+});
+
+loadGallery();
+</script>
+
+</body>
+</html>
