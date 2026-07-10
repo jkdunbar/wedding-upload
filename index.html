@@ -83,11 +83,16 @@ input[type="file"]:hover {
     background: #fdfcfb;
 }
 
-button {
+.button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+button, .btn-secondary {
     font-family: 'Montserrat', sans-serif;
-    background: #845422;
-    color: white;
-    border: none;
     padding: 14px 40px;
     border-radius: 30px;
     cursor: pointer;
@@ -95,8 +100,19 @@ button {
     letter-spacing: 1px;
     text-transform: uppercase;
     transition: all 0.3s ease;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 320px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+/* Primary Upload Button Styles */
+button {
+    background: #845422;
+    color: white;
+    border: none;
     box-shadow: 0 4px 10px rgba(132, 84, 34, 0.2);
-    margin-top: 25px;
 }
 
 button:hover {
@@ -110,6 +126,20 @@ button:disabled {
     box-shadow: none;
     transform: none;
     cursor: not-allowed;
+}
+
+/* Secondary Gallery Link Styles */
+.btn-secondary {
+    background: transparent;
+    color: #845422;
+    border: 1px solid #845422;
+}
+
+.btn-secondary:hover {
+    background: #845422;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(132, 84, 34, 0.15);
 }
 
 #status {
@@ -147,11 +177,15 @@ button:disabled {
 
 <input id="photos" type="file" multiple accept="image/*,video/*">
 
-<br>
-
-<button id="uploadBtn" onclick="uploadPhotos()">
-    Envoyer nos souvenirs
-</button>
+<div class="button-group">
+    <button id="uploadBtn" onclick="uploadPhotos()">
+        Envoyer nos souvenirs
+    </button>
+    
+    <a href="https://wedding-upload.jkdunbar.workers.dev/gallery" class="btn-secondary">
+        Voir la galerie
+    </a>
+</div>
 
 <div id="status"></div>
 
