@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Annick &amp; Damien's Wedding</title>
+<title>Le Mariage d'Annick &amp; Damien</title>
 
+<!-- Elegant Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
@@ -28,11 +29,9 @@ body {
     max-width: 650px;
     width: 100%;
     margin: auto;
-    /* Soft semi-transparent white background for an elegant overlay */
     background: rgba(255, 255, 255, 0.92);
     padding: 50px 40px;
     border-radius: 12px;
-    /* Elegant, soft drop shadow */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.5);
@@ -64,7 +63,6 @@ p {
     letter-spacing: 0.5px;
 }
 
-/* Elegant custom styling for the file picker */
 input[type="file"] {
     font-family: 'Montserrat', sans-serif;
     font-size: 0.9rem;
@@ -91,7 +89,7 @@ button {
     color: white;
     border: none;
     padding: 14px 40px;
-    border-radius: 30px; /* Rounded pill shape for elegance */
+    border-radius: 30px;
     cursor: pointer;
     font-size: 0.9rem;
     letter-spacing: 1px;
@@ -129,7 +127,6 @@ button:disabled {
     overflow-y: auto;
 }
 
-/* Hide status box if empty */
 #status:empty {
     display: none;
 }
@@ -141,11 +138,11 @@ button:disabled {
 <div class="container">
 
 <h1>Annick &amp; Damien</h1>
-<div class="wedding-date">Our Wedding Day</div>
+<div class="wedding-date">Notre Grand Jour</div>
 
 <p>
-    Thank you so much for celebrating with us.<br>
-    Please use the button below to share any photos or videos you captured during our special day.
+    Un grand merci d'avoir partagé ces moments avec nous.<br>
+    Vous pouvez utiliser le bouton ci-dessous pour nous envoyer les photos et vidéos de notre mariage.
 </p>
 
 <input id="photos" type="file" multiple accept="image/*,video/*">
@@ -153,7 +150,7 @@ button:disabled {
 <br>
 
 <button id="uploadBtn" onclick="uploadPhotos()">
-    Upload Memories
+    Envoyer nos souvenirs
 </button>
 
 <div id="status"></div>
@@ -168,13 +165,13 @@ async function uploadPhotos() {
     const statusDiv = document.getElementById("status");
 
     if (files.length === 0) {
-        alert("Please choose at least one file.");
+        alert("Veuillez sélectionner au moins un fichier.");
         return;
     }
 
     btn.disabled = true;
-    btn.innerText = "Uploading...";
-    statusDiv.innerText = "Uploading your beautiful memories, please wait...";
+    btn.innerText = "Envoi en cours...";
+    statusDiv.innerText = "Envoi de vos précieux souvenirs, merci de patienter...";
 
     let output = "";
 
@@ -194,20 +191,20 @@ async function uploadPhotos() {
             const text = await response.text();
 
             output +=
-                "FILE: " + file.name + "\n" +
-                "STATUS: " + response.status + "\n" +
-                "RESPONSE: " + text + "\n\n";
+                "FICHIER : " + file.name + "\n" +
+                "STATUT : " + response.status + "\n" +
+                "RÉPONSE : " + text + "\n\n";
 
         } catch (err) {
             output +=
-                "FILE: " + file.name + "\n" +
-                "ERROR: " + err.message + "\n\n";
+                "FICHIER : " + file.name + "\n" +
+                "ERREUR : " + err.message + "\n\n";
         }
     }
 
     statusDiv.innerText = output;
     btn.disabled = false;
-    btn.innerText = "Upload Memories";
+    btn.innerText = "Envoyer nos souvenirs";
     fileInput.value = ""; 
 }
 </script>
