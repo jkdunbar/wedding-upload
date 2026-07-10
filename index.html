@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Le Mariage d'Annick &amp; Damien</title>
 
-<!-- Elegant Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
@@ -107,7 +106,6 @@ button, .btn-secondary {
     display: inline-block;
 }
 
-/* Primary Upload Button Styles */
 button {
     background: #845422;
     color: white;
@@ -128,7 +126,6 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* Secondary Gallery Link Styles */
 .btn-secondary {
     background: transparent;
     color: #845422;
@@ -142,23 +139,39 @@ button:disabled {
     box-shadow: 0 6px 15px rgba(132, 84, 34, 0.15);
 }
 
-#status {
-    margin-top: 30px;
-    text-align: left;
-    white-space: pre-wrap;
-    font-family: monospace;
-    font-size: 0.85rem;
-    color: #666;
-    background: #fcfbfa;
-    padding: 15px;
-    border-radius: 6px;
-    border: 1px solid #eee;
-    max-height: 200px;
-    overflow-y: auto;
+/* Elegant Notification Messages instead of code blocks */
+.status-message {
+    margin-top: 25px;
+    font-size: 0.95rem;
+    font-weight: 400;
+    padding: 12px;
+    border-radius: 8px;
+    display: none;
+    animation: fadeIn 0.4s ease;
 }
 
-#status:empty {
-    display: none;
+.status-loading {
+    color: #a37c54;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.2rem;
+}
+
+.status-success {
+    background: #f0f7f4;
+    color: #2e6f40;
+    border: 1px solid #d2e7de;
+}
+
+.status-error {
+    background: #fdf2f2;
+    color: #ae2b2b;
+    border: 1px solid #fae1e1;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
@@ -187,16 +200,16 @@ button:disabled {
     </a>
 </div>
 
-<div id="status"></div>
+<div id="statusLoading" class="status-message status-loading"></div>
+<div id="statusSuccess" class="status-message status-success"></div>
+<div id="statusError" class="status-message status-error"></div>
 
 </div>
 
 <script>
-// Compresses images in the browser to create a fast-loading thumbnail
 function createThumbnail(file, maxWidth = 300) {
     return new Promise((resolve) => {
         if (!file.type.startsWith('image/')) {
-            // Videos get handled separately or fall back to original
             resolve(null);
             return;
         }
@@ -230,7 +243,7 @@ function createThumbnail(file, maxWidth = 300) {
 
                 canvas.toBlob((blob) => {
                     resolve(blob);
-                }, 'image/jpeg', 0.7); // 70% quality is perfect for grid layouts
+                }, 'image/jpeg', 0.7);
             };
         };
     });
@@ -240,24 +253,31 @@ async function uploadPhotos() {
     const fileInput = document.getElementById("photos");
     const files = fileInput.files;
     const btn = document.getElementById("uploadBtn");
-    const statusDiv = document.getElementById("status");
+    
+    const sLoading = document.getElementById("statusLoading");
+    const sSuccess = document.getElementById("statusSuccess");
+    const sError = document.getElementById("statusError");
 
     if (files.length === 0) {
         alert("Veuillez sélectionner au moins un fichier.");
         return;
     }
 
+    // Reset messages and show elegant loading state
+    sSuccess.style.display = "none";
+    sError.style.display = "none";
+    
     btn.disabled = true;
     btn.innerText = "Envoi en cours...";
-    statusDiv.innerText = "Envoi de vos précieux souvenirs, merci de patienter...";
+    sLoading.innerText = `Envoi de vos précieux souvenirs (${files.length} fichier${files.length > 1 ? 's' : ''}), merci de patienter...`;
+    sLoading.style.display = "block";
 
-    let output = "";
+    let hasError = false;
 
     for (const file of files) {
         const formData = new FormData();
         formData.append("file", file);
 
-        // Generate the thumbnail and attach it to the form data
         const thumbBlob = await createThumbnail(file);
         if (thumbBlob) {
             formData.append("thumbnail", thumbBlob, "thumb_" + file.name);
@@ -272,24 +292,27 @@ async function uploadPhotos() {
                 }
             );
 
-            const text = await response.text();
-
-            output +=
-                "FICHIER : " + file.name + "\n" +
-                "STATUT : " + response.status + "\n" +
-                "RÉPONSE : " + text + "\n\n";
+            if (!response.ok) throw new Error();
 
         } catch (err) {
-            output +=
-                "FICHIER : " + file.name + "\n" +
-                "ERREUR : " + err.message + "\n\n";
+            hasError = true;
         }
     }
 
-    statusDiv.innerText = output;
+    // Hide loader
+    sLoading.style.display = "none";
     btn.disabled = false;
     btn.innerText = "Envoyer nos souvenirs";
-    fileInput.value = ""; 
+
+    // Show friendly customized results
+    if (!hasError) {
+        sSuccess.innerText = "✨ Vos magnifiques photos ont bien été ajoutées à la galerie. Merci beaucoup !";
+        sSuccess.style.display = "block";
+        fileInput.value = ""; // Clear file picker on complete success
+    } else {
+        sError.innerText = "⚠️ Une petite erreur est survenue lors de l'envoi de certains fichiers. Veuillez réessayer.";
+        sError.style.display = "block";
+    }
 }
 </script>
 
