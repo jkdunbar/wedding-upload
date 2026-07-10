@@ -192,6 +192,52 @@ button:disabled {
 </div>
 
 <script>
+// Helper to create a thumbnail in the browser
+function createThumbnail(file, maxWidth = 300) {
+    return new Promise((resolve) => {
+        if (!file.type.startsWith('image/')) {
+            // For videos, return null (handled separately or uses a default icon)
+            resolve(null);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Calculate aspect ratio
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxWidth) {
+                        width = Math.round((width * maxWidth) / height);
+                        height = maxWidth;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert canvas to a lightweight blob
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/jpeg', 0.7); // 70% quality is perfect for fast thumbnails
+            };
+        };
+    });
+}
+
 async function uploadPhotos() {
     const fileInput = document.getElementById("photos");
     const files = fileInput.files;
@@ -212,6 +258,12 @@ async function uploadPhotos() {
     for (const file of files) {
         const formData = new FormData();
         formData.append("file", file);
+
+        // Generate and append thumbnail if it's an image
+        const thumbBlob = await createThumbnail(file);
+        if (thumbBlob) {
+            formData.append("thumbnail", thumbBlob, "thumb_" + file.name);
+        }
 
         try {
             const response = await fetch(
