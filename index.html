@@ -7,18 +7,9 @@
 <title>Mariage d'Annick et Damien</title>
 
 <style>
-
 body{
     font-family: Arial, sans-serif;
-
-    background-image:
-        url("https://lh3.googleusercontent.com/pw/AP1GczM7Vis5mcdviX0334R0lKOI2KNLReNWZqgQQXKKvgUcYpG9iH2W0h5I2i4GwZFwSJkkACzRNykQ9tZpTRPkJp960zBH01Pi9AtFFQJZkXdmD5NGNCf7=w2400");
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-
+    background: #f8f6f2;
     padding: 30px;
     margin: 0;
 }
@@ -26,37 +17,21 @@ body{
 .container{
     max-width: 800px;
     margin: auto;
-
-    background: rgba(255,255,255,0.95);
-
+    background: white;
     padding: 40px;
-
     border-radius: 20px;
-
-    box-shadow: 0 4px 15px rgba(0,0,0,.10);
-
+    box-shadow: 0 4px 15px rgba(0,0,0,.1);
     text-align: center;
 }
 
 h1{
-    color: #A56B38;
-    font-size: 48px;
-    margin-bottom: 10px;
-    font-family: Georgia, serif;
+    color: #9b6433;
+    margin-bottom: 20px;
 }
 
-.date{
-    font-style: italic;
-    color: #8f755a;
-    margin-bottom: 30px;
-    font-size: 20px;
-}
-
-.message{
-    font-size: 20px;
-    line-height: 1.6;
-    color: #444;
-    margin-bottom: 30px;
+p{
+    font-size: 18px;
+    line-height: 1.5;
 }
 
 input[type="file"]{
@@ -64,22 +39,22 @@ input[type="file"]{
 }
 
 button{
-    background: #B07A45;
+    background: #9b6433;
     color: white;
     border: none;
     padding: 14px 30px;
-    border-radius: 30px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
 }
 
 button:hover{
-    background: #976336;
+    background: #7f4f26;
 }
 
 #status{
     margin-top: 25px;
-    color: #A56B38;
+    color: #9b6433;
     font-size: 18px;
     font-weight: bold;
 }
@@ -88,26 +63,6 @@ button:hover{
     margin-top: 10px;
     color: #666;
 }
-
-.gallery-link{
-    display:block;
-    margin-top:25px;
-    color:#A56B38;
-    text-decoration:none;
-    font-weight:bold;
-    font-size:18px;
-}
-
-.gallery-link:hover{
-    text-decoration:underline;
-}
-
-.footer{
-    margin-top:30px;
-    color:#666;
-    font-size:14px;
-}
-
 </style>
 </head>
 
@@ -115,16 +70,12 @@ button:hover{
 
 <div class="container">
 
-    <h1>Annick et Damien</h1>
+    <h1>Mariage d'Annick et Damien</h1>
 
-    <div class="date">
-        9 août 2026
-    </div>
-
-    <div class="message">
-        Merci de célébrer cette journée spéciale avec nous.<br><br>
+    <p>
+        Merci de célébrer cette journée spéciale avec nous.<br>
         Veuillez partager vos photos et vidéos du mariage.
-    </div>
+    </p>
 
     <input
         id="photos"
@@ -142,14 +93,6 @@ button:hover{
     </button>
 
     <div id="status"></div>
-
-    gallery.html
-        Voir la galerie
-    </a>
-
-    <div class="footer">
-        Merci de partager vos souvenirs avec nous ❤️
-    </div>
 
 </div>
 
@@ -207,13 +150,23 @@ async function uploadPhotos() {
         }
     }
 
-    status.innerHTML =
-        "Merci !<br><br>" +
-        uploaded +
-        " fichier(s) téléversé(s) avec succès.";
+    if (uploaded === files.length) {
 
-    document.getElementById("photos").value = "";
-    document.getElementById("count").innerText = "";
+        status.innerHTML =
+            "Merci d'avoir partagé vos souvenirs&nbsp;!<br><br>" +
+            uploaded +
+            " fichier(s) téléversé(s) avec succès.";
+
+        document.getElementById("photos").value = "";
+        document.getElementById("count").innerText = "";
+
+    } else {
+
+        status.innerHTML =
+            uploaded +
+            " fichier(s) téléversé(s) sur " +
+            files.length + ".";
+    }
 }
 
 </script>
