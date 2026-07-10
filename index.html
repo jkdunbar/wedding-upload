@@ -9,24 +9,35 @@
 <style>
 body{
     font-family: Arial, sans-serif;
-    background: #f8f6f2;
+
+    background:
+        linear-gradient(
+            rgba(255,255,255,0.35),
+            rgba(255,255,255,0.35)
+        ),
+        url("https://lh3.googleusercontent.com/pw/AP1GczM7Vis5mcdviX0334R0lKOI2KNLReNWZqgQQXKKvgUcYpG9iH2W0h5I2i4GwZFwSJkkACzRNykQ9tZpTRPkJp960zBH01Pi9AtFFQJZkXdmD5NGNCf7=w2400");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
     padding: 30px;
     margin: 0;
 }
 
+
 .container{
     max-width: 800px;
     margin: auto;
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.1);
-    text-align: center;
-}
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(4px);}
 
 h1{
     color: #9b6433;
     margin-bottom: 20px;
+    font-family: Georgia, serif;
+    font-size: 3rem;
 }
 
 p{
@@ -93,7 +104,13 @@ button:hover{
     </button>
 
     <div id="status"></div>
+<br>
 
+<a
+    href="gallery.html"
+    style="
+        color:#9b6433;
+        text-decoration:none
 </div>
 
 <script>
