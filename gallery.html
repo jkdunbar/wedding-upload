@@ -30,6 +30,16 @@ body {
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.5);
+    position: relative;
+}
+
+/* Header layout to support button positioning */
+.gallery-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+    gap: 15px;
 }
 
 h1 {
@@ -38,9 +48,32 @@ h1 {
     font-weight: 400;
     color: #845422;
     text-align: center;
-    margin-top: 0;
-    margin-bottom: 40px;
+    margin: 0;
     letter-spacing: 1px;
+}
+
+/* Elegant Action Button back to Upload Page */
+.btn-secondary {
+    font-family: 'Montserrat', sans-serif;
+    padding: 10px 24px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    background: transparent;
+    color: #845422;
+    border: 1px solid #845422;
+}
+
+.btn-secondary:hover {
+    background: #845422;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(132, 84, 34, 0.15);
 }
 
 .gallery {
@@ -127,10 +160,21 @@ h1 {
     letter-spacing: 0.5px;
 }
 
+/* Desktop layout adjustment for the header */
+@media (min-width: 768px) {
+    .gallery-header {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    h1 {
+        text-align: left;
+    }
+}
+
 @media (max-width: 600px) {
     body { padding: 20px 10px; }
     .container { padding: 30px 20px; }
-    h1 { font-size: 2rem; }
+    h1 { font-size: 1.8rem; }
 }
 </style>
 </head>
@@ -139,7 +183,12 @@ h1 {
 
 <div class="container">
 
-    <h1>Galerie du mariage d'Annick &amp; Damien</h1>
+    <div class="gallery-header">
+        <h1>Galerie du mariage d'Annick &amp; Damien</h1>
+        <a href="https://wedding-upload.jkdunbar.workers.dev/" class="btn-secondary">
+            Ajouter des photos
+        </a>
+    </div>
 
     <div id="loading" class="loading">
         Chargement des précieux souvenirs...
