@@ -157,3 +157,60 @@ button:disabled {
 </button>
 
 <div id="status"></div>
+
+</div>
+
+<script>
+async function uploadPhotos() {
+    const fileInput = document.getElementById("photos");
+    const files = fileInput.files;
+    const btn = document.getElementById("uploadBtn");
+    const statusDiv = document.getElementById("status");
+
+    if (files.length === 0) {
+        alert("Please choose at least one file.");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "Uploading...";
+    statusDiv.innerText = "Uploading your beautiful memories, please wait...";
+
+    let output = "";
+
+    for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch(
+                "https://ancient-dew-e0ea.jkdunbar.workers.dev/upload",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+            const text = await response.text();
+
+            output +=
+                "FILE: " + file.name + "\n" +
+                "STATUS: " + response.status + "\n" +
+                "RESPONSE: " + text + "\n\n";
+
+        } catch (err) {
+            output +=
+                "FILE: " + file.name + "\n" +
+                "ERROR: " + err.message + "\n\n";
+        }
+    }
+
+    statusDiv.innerText = output;
+    btn.disabled = false;
+    btn.innerText = "Upload Memories";
+    fileInput.value = ""; 
+}
+</script>
+
+</body>
+</html>
