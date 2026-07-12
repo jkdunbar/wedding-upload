@@ -213,7 +213,6 @@ function createThumbnail(file, maxWidth = 300) {
         const name = file && file.name ? file.name.toLowerCase() : "";
         const type = file && file.type ? file.type : "";
 
-        // Safe check to verify string extensions safely across mobile browsers
         if (name.endsWith('.heic') || !type.startsWith('image/')) {
             resolve(null);
             return;
@@ -290,7 +289,6 @@ async function uploadPhotos() {
             try {
                 sLoading.innerText = `Conversion de l'image Apple HEIC (${file.name})...`;
                 
-                // Fetch conversion blob
                 const convertedBlob = await heic2any({
                     blob: file,
                     toType: "image/jpeg",
@@ -299,14 +297,20 @@ async function uploadPhotos() {
                 
                 const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
                 
-                // Reconstruct native file reference using standard explicit configurations
                 file = new File([convertedBlob], newName, { 
                     type: "image/jpeg",
                     lastModified: Date.now()
                 });
             } catch (heicErr) {
-                detailedError = `Échec de la conversion HEIC: ${heicErr.message || heicErr}`;
-                break;
+                const errString = String(heicErr.message || heicErr);
+                // SMART FALLBACK: If the converter fails or doesn't support the raw HEIC container type variant,
+                // log it out, skip conversion, and upload the original file straight through!
+                if (errString.includes("already browser readable") || errString.includes("not supported")) {
+                    console.log(`Bypassing conversion for ${file.name}. Uploading raw file asset instead.`);
+                } else {
+                    detailedError = `Échec de la conversion HEIC: ${errString}`;
+                    break;
+                }
             }
         }
 
