@@ -210,7 +210,11 @@ button:disabled {
 <script>
 function createThumbnail(file, maxWidth = 300) {
     return new Promise((resolve) => {
-        if (file.name.toLowerCase().endsWith('.heic') || !file.type.startsWith('image/')) {
+        const name = file && file.name ? file.name.toLowerCase() : "";
+        const type = file && file.type ? file.type : "";
+
+        // Safe check to verify string extensions safely across mobile browsers
+        if (name.endsWith('.heic') || !type.startsWith('image/')) {
             resolve(null);
             return;
         }
@@ -274,8 +278,9 @@ async function uploadPhotos() {
 
     let detailedError = "";
 
-    for (let file of files) {
-        let isHeic = file.name.toLowerCase().endsWith('.heic');
+    for (let originalFile of files) {
+        let file = originalFile;
+        let isHeic = file.name && file.name.toLowerCase().endsWith('.heic');
         
         if (isHeic) {
             if (typeof heic2any !== 'function') {
@@ -284,6 +289,8 @@ async function uploadPhotos() {
             }
             try {
                 sLoading.innerText = `Conversion de l'image Apple HEIC (${file.name})...`;
+                
+                // Fetch conversion blob
                 const convertedBlob = await heic2any({
                     blob: file,
                     toType: "image/jpeg",
@@ -291,7 +298,12 @@ async function uploadPhotos() {
                 });
                 
                 const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-                file = new File([convertedBlob], newName, { type: "image/jpeg" });
+                
+                // Reconstruct native file reference using standard explicit configurations
+                file = new File([convertedBlob], newName, { 
+                    type: "image/jpeg",
+                    lastModified: Date.now()
+                });
             } catch (heicErr) {
                 detailedError = `Échec de la conversion HEIC: ${heicErr.message || heicErr}`;
                 break;
