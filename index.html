@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Le Mariage d'Annick &amp; Damien</title>
+<title>Le Mariage d'Annick & Damien</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 
 <style>
 body {
@@ -139,7 +141,6 @@ button:disabled {
     box-shadow: 0 6px 15px rgba(132, 84, 34, 0.15);
 }
 
-/* Elegant Notification Messages instead of code blocks */
 .status-message {
     margin-top: 25px;
     font-size: 0.95rem;
@@ -180,15 +181,15 @@ button:disabled {
 
 <div class="container">
 
-<h1>Annick &amp; Damien</h1>
+<h1>Annick & Damien</h1>
 <div class="wedding-date">Notre Grand Jour</div>
 
 <p>
     Un grand merci d'avoir partagé ces moments avec nous.<br>
-    Vous pouvez utiliser le bouton ci-dessous pour nous envoyer les photos et vidéos de notre mariage.
+    Vous pouvez utiliser le bouton ci-dessous pour nous envoyer les photos (.jpg, .png, .heic) et vidéos (.mp4, .mov) de notre mariage.
 </p>
 
-<input id="photos" type="file" multiple accept="image/*,video/*">
+<input id="photos" type="file" multiple accept="image/*,video/*,.heic,.HEIC,.mov,.MOV">
 
 <div class="button-group">
     <button id="uploadBtn" onclick="uploadPhotos()">
@@ -209,7 +210,7 @@ button:disabled {
 <script>
 function createThumbnail(file, maxWidth = 300) {
     return new Promise((resolve) => {
-        if (!file.type.startsWith('image/')) {
+        if (!file.type.startsWith('image/') && !file.name.toLowerCase().endsWith('.heic')) {
             resolve(null);
             return;
         }
@@ -263,7 +264,6 @@ async function uploadPhotos() {
         return;
     }
 
-    // Reset messages and show elegant loading state
     sSuccess.style.display = "none";
     sError.style.display = "none";
     
@@ -274,7 +274,32 @@ async function uploadPhotos() {
 
     let hasError = false;
 
-    for (const file of files) {
+    for (let file of files) {
+        let isHeic = file.name.toLowerCase().endsWith('.heic');
+        
+        // Convert HEIC file completely to JPEG blob block before uploading 
+        if (isHeic && typeof heic2any === 'function') {
+            try {
+                sLoading.innerText = `Conversion de l'image Apple HEIC (${file.name})...`;
+                const convertedBlob = await heic2any({
+                    blob: file,
+                    toType: "image/jpeg",
+                    quality: 0.85
+                });
+                
+                // Overwrite file reference variable with the new standard JPEG data format object
+                const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                file = new File([convertedBlob], newName, { type: "image/jpeg" });
+            } catch (heicErr) {
+                console.error("HEIC Conversion failed: ", heicErr);
+                hasError = true;
+                continue; 
+            }
+        }
+
+        // Restore normal processing text state info
+        sLoading.innerText = `Envoi de ${file.name}...`;
+
         const formData = new FormData();
         formData.append("file", file);
 
@@ -299,16 +324,14 @@ async function uploadPhotos() {
         }
     }
 
-    // Hide loader
     sLoading.style.display = "none";
     btn.disabled = false;
     btn.innerText = "Envoyer nos souvenirs";
 
-    // Show friendly customized results
     if (!hasError) {
         sSuccess.innerText = "✨ Vos magnifiques photos ont bien été ajoutées à la galerie. Merci beaucoup !";
         sSuccess.style.display = "block";
-        fileInput.value = ""; // Clear file picker on complete success
+        fileInput.value = ""; 
     } else {
         sError.innerText = "⚠️ Une petite erreur est survenue lors de l'envoi de certains fichiers. Veuillez réessayer.";
         sError.style.display = "block";
