@@ -208,16 +208,8 @@ button:disabled {
 </div>
 
 <script>
-function createThumbnail(file, maxWidth = 300) {
+function forceThumbnailGen(file, maxWidth = 300) {
     return new Promise((resolve) => {
-        const name = file && file.name ? file.name.toLowerCase() : "";
-        const type = file && file.type ? file.type : "";
-
-        if (name.endsWith('.heic') || !type.startsWith('image/')) {
-            resolve(null);
-            return;
-        }
-
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {
@@ -249,7 +241,9 @@ function createThumbnail(file, maxWidth = 300) {
                     resolve(blob);
                 }, 'image/jpeg', 0.7);
             };
+            img.onerror = () => resolve(null); // Return empty if image compilation fails
         };
+        reader.onerror = () => resolve(null);
     });
 }
 
@@ -279,13 +273,11 @@ async function uploadPhotos() {
 
     for (let originalFile of files) {
         let file = originalFile;
-        let isHeic = file.name && file.name.toLowerCase().endsWith('.heic');
+        let nameLower = file.name ? file.name.toLowerCase() : "";
+        let isHeic = nameLower.endsWith('.heic');
+        let wasConverted = false;
         
-        if (isHeic) {
-            if (typeof heic2any !== 'function') {
-                detailedError = "La librairie heic2any n'a pas pu être chargée par le navigateur.";
-                break;
-            }
+        if (isHeic && typeof heic2any === 'function') {
             try {
                 sLoading.innerText = `Conversion de l'image Apple HEIC (${file.name})...`;
                 
@@ -296,17 +288,16 @@ async function uploadPhotos() {
                 });
                 
                 const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-                
                 file = new File([convertedBlob], newName, { 
                     type: "image/jpeg",
                     lastModified: Date.now()
                 });
+                wasConverted = true;
             } catch (heicErr) {
                 const errString = String(heicErr.message || heicErr);
-                // SMART FALLBACK: If the converter fails or doesn't support the raw HEIC container type variant,
-                // log it out, skip conversion, and upload the original file straight through!
-                if (errString.includes("already browser readable") || errString.includes("not supported")) {
-                    console.log(`Bypassing conversion for ${file.name}. Uploading raw file asset instead.`);
+                // If the error states it's already browser readable, we assume it's structurally a PNG/JPEG
+                if (errString.includes("already browser readable")) {
+                    console.log("File is already browser readable, treating as raw standard web format.");
                 } else {
                     detailedError = `Échec de la conversion HEIC: ${errString}`;
                     break;
@@ -319,9 +310,12 @@ async function uploadPhotos() {
         const formData = new FormData();
         formData.append("file", file);
 
-        const thumbBlob = await createThumbnail(file);
-        if (thumbBlob) {
-            formData.append("thumbnail", thumbBlob, "thumb_" + file.name);
+        // Generate thumbnail for all web-standard images (and successfully converted HEICs)
+        if (!nameLower.endsWith('.heic') || wasConverted) {
+            const thumbBlob = await forceThumbnailGen(file);
+            if (thumbBlob) {
+                formData.append("thumbnail", thumbBlob, "thumb_" + file.name);
+            }
         }
 
         try {
