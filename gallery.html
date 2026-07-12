@@ -32,7 +32,6 @@ body {
     position: relative;
 }
 
-/* Optimized Header Layout - Keeps content beautifully balanced and handles text wrapping */
 .gallery-header {
     display: flex;
     flex-direction: column;
@@ -51,10 +50,9 @@ h1 {
     margin: 0;
     letter-spacing: 1px;
     line-height: 1.2;
-    flex: 1; /* Allows the title to claim all available space before wrapping */
+    flex: 1;
 }
 
-/* Elegant Action Button back to Upload Page */
 .btn-secondary {
     font-family: 'Montserrat', sans-serif;
     padding: 12px 28px;
@@ -69,8 +67,8 @@ h1 {
     background: transparent;
     color: #845422;
     border: 1px solid #845422;
-    white-space: nowrap; /* Keeps the button text on a single line */
-    flex-shrink: 0; /* Prevents layout compression from shrinking the button shape */
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .btn-secondary:hover {
@@ -87,7 +85,8 @@ h1 {
 }
 
 .gallery img,
-.gallery video {
+.gallery video,
+.heic-placeholder {
     width: 100%;
     height: 220px;
     object-fit: cover;
@@ -96,10 +95,35 @@ h1 {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
     background-color: #faf8f5;
+    box-sizing: border-box;
+}
+
+.heic-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #d1c4b6;
+    color: #a37c54;
+    padding: 20px;
+    text-align: center;
+}
+
+.heic-placeholder span {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+
+.heic-placeholder p {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1.4;
 }
 
 .gallery img:hover,
-.gallery video:hover {
+.gallery video:hover,
+.heic-placeholder:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 25px rgba(132, 84, 34, 0.15);
 }
@@ -123,11 +147,46 @@ h1 {
 }
 
 .viewer-content img,
-.viewer-content video {
+.viewer-content video,
+.viewer-heic-fallback {
     max-width: 100%;
     max-height: 85vh;
     border-radius: 4px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.viewer-heic-fallback {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.viewer-heic-fallback h3 {
+    font-family: 'Cormorant Garamond', serif;
+    color: #845422;
+    font-size: 1.8rem;
+    margin-top: 0;
+}
+
+.btn-download {
+    display: inline-block;
+    margin-top: 20px;
+    background: #845422;
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    transition: background 0.2s ease;
+}
+
+.btn-download:hover {
+    background: #6e441a;
 }
 
 .close {
@@ -164,7 +223,6 @@ h1 {
     letter-spacing: 0.5px;
 }
 
-/* Responsive Desktop layout optimization */
 @media (min-width: 768px) {
     .gallery-header {
         flex-direction: row;
@@ -191,7 +249,7 @@ h1 {
 <div class="container">
 
     <div class="gallery-header">
-        <h1>Galerie du mariage d'Annick &amp; Damien</h1>
+        <h1>Galerie du mariage d'Annick & Damien</h1>
         <a href="https://wedding-upload.jkdunbar.workers.dev/" class="btn-secondary">
             Ajouter des photos
         </a>
@@ -242,17 +300,21 @@ async function loadGallery(){
 
         for (const item of items) {
             let element;
+            const nameLower = item.name.toLowerCase();
 
-            const thumbSrc = item.thumbnailUrl ? item.thumbnailUrl : item.url;
-
-            if (isVideo(item.name)) {
+            // Handle the raw non-converted HEIC format cases seamlessly
+            if (nameLower.endsWith('.heic')) {
+                element = document.createElement("div");
+                element.className = "heic-placeholder";
+                element.innerHTML = "<span>📷</span><p>Photo Apple HEIC<br><small>(Cliquez pour voir/télécharger)</small></p>";
+            } else if (isVideo(item.name)) {
                 element = document.createElement("video");
-                element.src = thumbSrc;
+                element.src = item.thumbnailUrl ? item.thumbnailUrl : item.url;
                 element.muted = true;
                 element.preload = "metadata";
             } else {
                 element = document.createElement("img");
-                element.src = thumbSrc;
+                element.src = item.thumbnailUrl ? item.thumbnailUrl : item.url;
                 element.loading = "lazy";
             }
 
@@ -260,7 +322,17 @@ async function loadGallery(){
                 const viewerContent = document.getElementById("viewerContent");
                 viewerContent.innerHTML = "";
 
-                if (isVideo(item.name)) {
+                if (nameLower.endsWith('.heic')) {
+                    // Render an elegant fallback box for unconvertable original formats
+                    const fallbackBox = document.createElement("div");
+                    fallbackBox.className = "viewer-heic-fallback";
+                    fallbackBox.innerHTML = `
+                        <h3>Photo originale HEIC</h3>
+                        <p>Ce format d'image haute efficacité est propre aux appareils Apple et ne peut pas être affiché directement dans ce navigateur.</p>
+                        <a href="${item.url}" download="${item.name}" class="btn-download">Télécharger la photo</a>
+                    `;
+                    viewerContent.appendChild(fallbackBox);
+                } else if (isVideo(item.name)) {
                     const video = document.createElement("video");
                     video.src = item.url;
                     video.controls = true;
