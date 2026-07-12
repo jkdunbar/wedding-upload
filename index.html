@@ -210,7 +210,6 @@ button:disabled {
 <script>
 function createThumbnail(file, maxWidth = 300) {
     return new Promise((resolve) => {
-        // FIXED: Explicitly stop if it's an un-converted HEIC file to prevent canvas freezing
         if (file.name.toLowerCase().endsWith('.heic') || !file.type.startsWith('image/')) {
             resolve(null);
             return;
@@ -270,29 +269,32 @@ async function uploadPhotos() {
     
     btn.disabled = true;
     btn.innerText = "Envoi en cours...";
-    sLoading.innerText = `Envoi de vos précieux souvenirs (${files.length} fichier${files.length > 1 ? 's' : ''}), merci de patienter...`;
+    sLoading.innerText = `Envoi de vos précieux souvenirs (${files.length} fichiers)...`;
     sLoading.style.display = "block";
 
-    let hasError = false;
+    let detailedError = "";
 
     for (let file of files) {
         let isHeic = file.name.toLowerCase().endsWith('.heic');
         
-        if (isHeic && typeof heic2any === 'function') {
+        if (isHeic) {
+            if (typeof heic2any !== 'function') {
+                detailedError = "La librairie heic2any n'a pas pu être chargée par le navigateur.";
+                break;
+            }
             try {
                 sLoading.innerText = `Conversion de l'image Apple HEIC (${file.name})...`;
                 const convertedBlob = await heic2any({
                     blob: file,
                     toType: "image/jpeg",
-                    quality: 0.85
+                    quality: 0.80
                 });
                 
                 const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
                 file = new File([convertedBlob], newName, { type: "image/jpeg" });
             } catch (heicErr) {
-                console.error("HEIC Conversion failed: ", heicErr);
-                hasError = true;
-                continue; 
+                detailedError = `Échec de la conversion HEIC: ${heicErr.message || heicErr}`;
+                break;
             }
         }
 
@@ -301,7 +303,6 @@ async function uploadPhotos() {
         const formData = new FormData();
         formData.append("file", file);
 
-        // This will successfully compute since the newly converted file format is now an image/jpeg!
         const thumbBlob = await createThumbnail(file);
         if (thumbBlob) {
             formData.append("thumbnail", thumbBlob, "thumb_" + file.name);
@@ -316,10 +317,14 @@ async function uploadPhotos() {
                 }
             );
 
-            if (!response.ok) throw new Error();
+            if (!response.ok) {
+                const errMsg = await response.text();
+                throw new Error(`Erreur serveur (${response.status}): ${errMsg}`);
+            }
 
         } catch (err) {
-            hasError = true;
+            detailedError = `Échec de l'envoi pour ${file.name}: ${err.message}`;
+            break;
         }
     }
 
@@ -327,12 +332,12 @@ async function uploadPhotos() {
     btn.disabled = false;
     btn.innerText = "Envoyer nos souvenirs";
 
-    if (!hasError) {
+    if (!detailedError) {
         sSuccess.innerText = "✨ Vos magnifiques photos ont bien été ajoutées à la galerie. Merci beaucoup !";
         sSuccess.style.display = "block";
         fileInput.value = ""; 
     } else {
-        sError.innerText = "⚠️ Une petite erreur est survenue lors de l'envoi de certains fichiers. Veuillez réessayer.";
+        sError.innerText = `⚠️ ${detailedError}`;
         sError.style.display = "block";
     }
 }
